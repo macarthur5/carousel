@@ -1,0 +1,593 @@
+html {
+  font-family: "Ubuntu", sans-serif;
+  font-size: 13px;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+body {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.smallerfont {
+  font-size: 0.7rem;
+}
+
+.smallfont {
+  font-size: 0.9rem;
+}
+
+.mediumfont {
+  font-size: 1rem;
+}
+
+.justlargerfont {
+  font-size: 1.1rem;
+}
+
+.largerfont {
+  font-size: 1.2rem;
+}
+
+.evenlargerfont {
+  font-size: 1.3rem;
+}
+
+.largestfont {
+  font-size: 1.4rem;
+}
+
+.marginl0 {
+  margin-left: 2px;
+}
+
+.marginl1 {
+  margin-left: 4px;
+}
+
+.marginl2 {
+  margin-left: 6px;
+}
+
+.marginl3 {
+  margin-left: 8px;
+}
+
+.marginl4 {
+  margin-left: 10px;
+}
+
+.marginl5 {
+  margin-left: 12px;
+}
+
+.marginl6 {
+  margin-left: 14px;
+}
+
+.marginl7 {
+  margin-left: 14px;
+}
+
+.marginl8 {
+  margin-left: 16px;
+}
+
+.marginl9 {
+  margin-left: 18px;
+}
+
+.marginl10 {
+  margin-left: 20px;
+}
+
+.marginl11 {
+  margin-left: 22px;
+}
+
+.marginl12 {
+  margin-left: 24px;
+}
+
+.marginlmajor {
+  margin-left: 2.5rem;
+}
+
+.marginr0 {
+  margin-right: 2px;
+}
+
+.marginr1 {
+  margin-right: 4px;
+}
+
+.marginr2 {
+  margin-right: 6px;
+}
+
+.marginr3 {
+  margin-right: 8px;
+}
+
+.marginr4 {
+  margin-right: 10px;
+}
+
+.marginr5 {
+  margin-right: 12px;
+}
+
+.marginr6 {
+  margin-right: 14px;
+}
+
+.marginr7 {
+  margin-right: 14px;
+}
+
+.marginr8 {
+  margin-right: 16px;
+}
+
+.marginr9 {
+  margin-right: 18px;
+}
+
+.margint0 {
+  margin-top: 2px;
+}
+
+.margint1 {
+  margin-top: 4px;
+}
+
+.margint2 {
+  margin-top: 6px;
+}
+
+.margint3 {
+  margin-top: 8px;
+}
+
+.margint4 {
+  margin-top: 10px;
+}
+
+.margint5 {
+  margin-top: 12px;
+}
+
+.margint6 {
+  margin-top: 14px;
+}
+
+.margint7 {
+  margin-top: 14px;
+}
+
+.margint8 {
+  margin-top: 16px;
+}
+
+.margint9 {
+  margin-top: 18px;
+}
+
+.margint12 {
+  margin-top: 24px;
+}
+
+.marginb-m1 {
+  margin-bottom: 1px;
+}
+
+.marginb0 {
+  margin-bottom: 2px;
+}
+
+.marginb1 {
+  margin-bottom: 4px;
+}
+
+.marginb2 {
+  margin-bottom: 6px;
+}
+
+.marginb3 {
+  margin-bottom: 8px;
+}
+
+.marginb4 {
+  margin-bottom: 10px;
+}
+
+.marginb5 {
+  margin-bottom: 12px;
+}
+
+.marginb6 {
+  margin-bottom: 14px;
+}
+
+.marginb7 {
+  margin-bottom: 14px;
+}
+
+.marginb8 {
+  margin-bottom: 16px;
+}
+
+.marginb9 {
+  margin-bottom: 18px;
+}
+
+.horizontalbox {
+  display: flex;
+  flex-direction: row;
+}
+
+.verticalbox {
+  display: flex;
+  flex-direction: column;
+}
+
+.jass {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.jasc {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.jase {
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+
+.jassb {
+  justify-content: flex-start;
+  align-items: space-between;
+}
+
+.jassa {
+  justify-content: flex-start;
+  align-items: space-around;
+}
+
+.jasse {
+  justify-content: flex-start;
+  align-items: space-evenly;
+}
+
+/*------------------------------------*/
+
+.jacs {
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.jacc {
+  justify-content: center;
+  align-items: center;
+}
+
+.jace {
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.jacsb {
+  justify-content: center;
+  align-items: space-between;
+}
+
+.jacsa {
+  justify-content: center;
+  align-items: space-around;
+}
+
+.jacse {
+  justify-content: center;
+  align-items: space-evenly;
+}
+
+/*------------------------------------*/
+
+.jaes {
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.jaec {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.jaee {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.jaesb {
+  justify-content: flex-end;
+  align-items: space-between;
+}
+
+.jaesa {
+  justify-content: flex-end;
+  align-items: space-around;
+}
+
+.jaese {
+  justify-content: flex-end;
+  align-items: space-evenly;
+}
+
+/*------------------------------------*/
+
+.jasbs {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.jasbc {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.jasbe {
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.jasbsb {
+  justify-content: space-around;
+  align-items: space-between;
+}
+
+.jasbsa {
+  justify-content: space-between;
+  align-items: space-around;
+}
+
+.jasbse {
+  justify-content: space-between;
+  align-items: space-evenly;
+}
+
+/*------------------------------------*/
+
+.jasas {
+  justify-content: space-around;
+  align-items: flex-start;
+}
+
+.jasac {
+  justify-content: space-around;
+  align-items: center;
+}
+
+.jasae {
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.jasasb {
+  justify-content: space-around;
+  align-items: space-between;
+}
+
+.jasasa {
+  justify-content: space-around;
+  align-items: space-around;
+}
+
+.jasase {
+  justify-content: space-around;
+  align-items: space-evenly;
+}
+
+/*------------------------------------*/
+
+.jases {
+  justify-content: space-evenly;
+  align-items: flex-start;
+}
+
+.jasec {
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.jasee {
+  justify-content: space-evenly;
+  align-items: flex-end;
+}
+
+.jasesb {
+  justify-content: space-evenly;
+  align-items: space-between;
+}
+
+.jasesa {
+  justify-content: space-evenly;
+  align-items: space-around;
+}
+
+.jasese {
+  justify-content: space-evenly;
+  align-items: space-evenly;
+}
+
+/*------------------------------------*/
+
+.acs {
+  align-content: flex-start;
+}
+
+.acc {
+  align-content: center;
+}
+
+.ace {
+  align-content: center;
+}
+
+.acsb {
+  align-content: space-between;
+}
+
+.acsa {
+  align-content: space-around;
+}
+
+.acstr {
+  align-content: stretch;
+}
+
+.flexwrap {
+  flex-wrap: wrap;
+}
+
+.flexnowrap {
+  flex-wrap: nowrap;
+}
+
+.noflexbasis {
+  flex-basis: 0;
+}
+
+.fullheight {
+  height: 100%;
+}
+
+.block {
+  width: 100%;
+}
+
+.easyblock {
+  width: 98%;
+}
+
+.veryeasyblock {
+  width: 80%;
+}
+
+.gone {
+  display: none;
+}
+
+.shown {
+  display: block;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+}
+
+.notextdecoration {
+  text-decoration: none;
+}
+
+/********************************************************************************/
+
+.cyan {
+  background-color: #09c;
+}
+
+.smoke {
+  background-color: whitesmoke;
+}
+
+/********************************************************************************/
+
+.flexgrowval1 {
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.flexgrowval2 {
+  flex-grow: 2;
+  flex-basis: 0;
+}
+
+.flexbasis {
+  flex-basis: 0;
+}
+
+.centertext {
+  text-align: center;
+}
+
+::-webkit-scrollbar {
+  width: 0.2rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(190, 190, 190, 0.5);
+}
+
+.noborder {
+  border: none;
+}
+
+.bolder {
+  font-weight: bold;
+}
+
+input[type="text"] {
+  width: 10rem;
+  height: 1.6rem;
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  background-color: rgb(249, 249, 249);
+  border: none;
+  color: rgb(10, 10, 10);
+  border-radius: 0.1rem;
+}
+
+input[type="text"]:focus {
+  outline: none;
+}
+
+.coolbutton {
+  width: 10rem;
+  height: 2.6rem;
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid whitesmoke;
+  color: whitesmoke;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.coolbutton:hover {
+  background-color: whitesmoke;
+  color: rgb(50, 50, 50);
+  cursor: pointer;
+}
+
+.coolbutton:focus {
+  outline: none;
+}
+
+.light_theme_color0 {
+  background-color: lightyellow;
+  color: rgb(10, 10, 10);
+}
+
+.graytext {
+  color: rgb(30, 30, 30);
+}
+
+.lightgraytext {
+  color: rgb(70, 70, 70);
+}
