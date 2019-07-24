@@ -13,12 +13,21 @@
   max-width: 55px;
 }
 
+.x-carousel-nav:hover {
+  cursor: pointer;
+}
+
 .x-carousel-div-content:nth-child(2n + 1) {
   background-color: crimson;
 }
 
 .x-carousel-div-content:nth-child(2n) {
   background-color: dodgerblue;
+}
+
+.x-carousel-div-content .pagelabel {
+  font-size: 6.5rem;
+  color: whitesmoke;
 }
 
 .full {
