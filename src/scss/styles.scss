@@ -1,33 +1,46 @@
 .x-carousel {
   width: 100%;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
+  position: relative;
 }
 
 .x-carousel-div {
-  width: 90%;
+  width: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  z-index: 0;
 }
 
 .x-carousel-nav {
   width: 7%;
   max-width: 55px;
+  position: absolute;
+}
+
+.x-carousel-leftnav {
+  left: 0px;
+  top: 0px;
+  z-index: 1;
+}
+
+.x-carousel-rightnav {
+  right: 0px;
+  top: 0px;
+  z-index: 1;
 }
 
 .x-carousel-nav:hover {
   cursor: pointer;
 }
 
-.x-carousel-div-content:nth-child(2n + 1) {
-  background-color: crimson;
-}
-
-.x-carousel-div-content:nth-child(2n) {
-  background-color: dodgerblue;
+.x-carousel-div-content {
+  background-color: whitesmoke;
 }
 
 .x-carousel-div-content .pagelabel {
   font-size: 6.5rem;
-  color: whitesmoke;
+  color: darkslategray;
 }
 
 .full {

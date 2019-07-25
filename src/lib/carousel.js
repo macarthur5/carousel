@@ -9,6 +9,9 @@ export default class carousel {
     this.currentpage = 0;
     this.totalpages = titles.length;
     this.engaged = false;
+    this.pagesparent = null;
+    this.pageRefs = [];
+    this.page1pos = 0;
 
     this.leftnav = this.leftnav.bind(this);
     this.rightnav = this.rightnav.bind(this);
@@ -17,6 +20,8 @@ export default class carousel {
     this.slide = this.slide.bind(this);
     this.hide = this.hide.bind(this);
     this.show = this.show.bind(this);
+    this.plugPage1ToStart = this.plugPage1ToStart.bind(this);
+    this.plugPage1ToEnd = this.plugPage1ToEnd.bind(this);
   }
 
   hide(elem) {
@@ -49,29 +54,34 @@ export default class carousel {
 
   leftnav() {
     if (!this.engaged) {
-      this.toBeCollapsed = document.querySelector(
-        `.x-carousel-div-content-${this.currentpage}`
-      );
+      if (this.currentpage === 1 && this.page1pos === this.totalpages - 1) {
+        this.plugPage1ToStart();
+      } else if (this.currentpage === 0 && this.page1pos === 0) {
+        this.plugPage1ToEnd();
+      }
+      this.toBeCollapsed = this.pageRefs[this.currentpage];
       this.prevpage();
-      this.toBeGrown = document.querySelector(
-        `.x-carousel-div-content-${this.currentpage}`
-      );
+      this.toBeGrown = this.pageRefs[this.currentpage];
       this.show(this.toBeGrown);
       this.show(this.toBeCollapsed);
-
       this.slide();
     }
   }
 
   rightnav() {
     if (!this.engaged) {
-      this.toBeCollapsed = document.querySelector(
-        `.x-carousel-div-content-${this.currentpage}`
-      );
+      if (this.currentpage === 0 && this.page1pos === this.totalpages - 1) {
+        this.plugPage1ToStart();
+      } else if (
+        this.currentpage === this.totalpages - 1 &&
+        this.page1pos === 0
+      ) {
+        this.plugPage1ToEnd();
+      }
+
+      this.toBeCollapsed = this.pageRefs[this.currentpage];
       this.nextpage();
-      this.toBeGrown = document.querySelector(
-        `.x-carousel-div-content-${this.currentpage}`
-      );
+      this.toBeGrown = this.pageRefs[this.currentpage];
       this.show(this.toBeGrown);
       this.show(this.toBeCollapsed);
 
@@ -84,16 +94,13 @@ export default class carousel {
     new animator(
       0,
       100,
-      0.30,
+      0.3,
       value => {
         const ivalstr = `${value.toString()}%`;
         const dvalstr = `${(100 - value).toString()}%`;
 
         this.toBeGrown.style.width = ivalstr;
         this.toBeCollapsed.style.width = dvalstr;
-
-        this.toBeCollapsed.style.filter = `grayscale(${ivalstr})`;
-        this.toBeCollapsed.style.filter = `grayscale(${dvalstr})`;
       },
       value => {
         this.toBeGrown.style.width = `${Math.floor(value).toString()}%`;
@@ -105,6 +112,25 @@ export default class carousel {
         this.engaged = false;
       }
     ).start();
+  }
+
+  plugPage1ToStart() {
+    if (this.page1pos !== 0) {
+      this.pageRefs[0] = this.pagesparent.removeChild(this.pageRefs[0]);
+      this.pageRefs[0] = this.pagesparent.insertBefore(
+        this.pageRefs[0],
+        this.pageRefs[1]
+      );
+      this.page1pos = 0;
+    }
+  }
+
+  plugPage1ToEnd() {
+    if (this.page1pos + 1 !== this.totalpages) {
+      this.pageRefs[0] = this.pagesparent.removeChild(this.pageRefs[0]);
+      this.pageRefs[0] = this.pagesparent.appendChild(this.pageRefs[0]);
+      this.page1pos = this.totalpages - 1;
+    }
   }
 
   add_divs() {
@@ -126,6 +152,8 @@ export default class carousel {
 
       if (index !== 0) this.hide(x_carousel_div_content);
 
+      this.pageRefs.push(x_carousel_div_content);
+
       this.x_carousel
         .querySelector(`.x-carousel-div`)
         .appendChild(x_carousel_div_content);
@@ -136,8 +164,6 @@ export default class carousel {
     let x_carousel = document.createElement(`div`);
     x_carousel.classList.add(`x-carousel`);
     x_carousel.classList.add(`block`);
-    x_carousel.classList.add(`horizontalbox`);
-    x_carousel.classList.add(`jass`);
     x_carousel.classList.add(`fullheight`);
 
     let x_carousel_leftnav = document.createElement(`div`);
@@ -155,13 +181,14 @@ export default class carousel {
     x_carousel_div.classList.add(`horizontalbox`);
     x_carousel_div.classList.add(`jasbc`);
     x_carousel_div.classList.add(`flexgrowval1`);
+    this.pagesparent = x_carousel_div;
 
     let x_carousel_rightnav = document.createElement(`div`);
     x_carousel_rightnav.classList.add(`x-carousel-nav`);
     x_carousel_rightnav.classList.add(`x-carousel-rightnav`);
+    x_carousel_rightnav.classList.add(`fullheight`);
     x_carousel_rightnav.classList.add(`verticalbox`);
     x_carousel_rightnav.classList.add(`jacc`);
-    x_carousel_rightnav.classList.add(`fullheight`);
     x_carousel_rightnav.addEventListener("click", this.rightnav);
     x_carousel_rightnav.innerHTML += this.getrightnavimage();
 
