@@ -77,7 +77,16 @@ export default class Carousel {
         }
         break;
       case Constants.TYPE_SLIDER_CAROUSEL:
-        console.log("not doing anything right now");
+        const tbrindex =
+          (this.pageOffIndex - 1 + this.totalpages) % this.totalpages;
+        this.pageRefs[tbrindex] = this.pagesparent.removeChild(
+          this.pageRefs[tbrindex]
+        );
+        this.pageRefs[tbrindex] = this.pagesparent.insertBefore(
+          this.pageRefs[tbrindex],
+          this.pageRefs[this.pageOffIndex]
+        );
+        this.pageOffIndex = tbrindex;
         break;
     }
   }
