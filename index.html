@@ -9,16 +9,20 @@
     <div
       class="x-carousel-placeholder"
       data-carouseltype="full"
-      style="width:100%;height:300px;"
+      style="width:100%;height:300px;border:1px dashed rgb(0,0,0);"
     ></div>
 
     <script>
       window.addEventListener("carousel_ready", function(event) {
-        let Carousel = event.detail;
+        let Carousel = event.detail.Carousel;
+        let Constants = event.detail.Constants;
         new Carousel(
           document.querySelector(".x-carousel-placeholder"),
           ["div1", "div2", "div3", "div4", "div5", "div6"],
-          Carousel.TYPE_SLIDER_CAROUSEL
+          {
+            type: Constants.TYPE_SLIDER_CAROUSEL,
+            childWidthFraction: 30
+          }
         ).init();
       });
     </script>
