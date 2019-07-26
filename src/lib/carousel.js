@@ -3,6 +3,7 @@ import rightarrsvg from "../resources/svgs/right-arrow.svg";
 import animator from "../util/animator.js";
 import * as Constants from "../util/constants.js";
 import { genStyleSheet } from "../util/styles.js";
+import { styleToNumber } from "../util/helper.js";
 
 export default class Carousel {
   constructor(elem, titles, props) {
@@ -16,7 +17,6 @@ export default class Carousel {
     this.page1pos = 0;
     this.pageOffIndex = 0;
     this.props = props;
-    this.type = this.props.type;
 
     this.leftnav = this.leftnav.bind(this);
     this.rightnav = this.rightnav.bind(this);
@@ -33,6 +33,10 @@ export default class Carousel {
     this.coregen = this.coregen.bind(this);
     this.divsgen = this.divsgen.bind(this);
     this.refsgen = this.refsgen.bind(this);
+    this.setProps = this.setProps.bind(this);
+    this.skate = this.skate.bind(this);
+
+    this.setProps();
   }
 
   getfootermessage() {
@@ -59,6 +63,26 @@ export default class Carousel {
     this.currentpage = (++this.currentpage + this.totalpages) % this.totalpages;
   }
 
+  setProps() {
+    if (this.props.hasOwnProperty("type")) {
+      this.type = this.props.type;
+    } else {
+      this.type = this.props.type = Constants.TYPE_FULL_CAROUSEL;
+    }
+
+    if (!this.props.hasOwnProperty("width")) {
+      this.props.width = "30%";
+    }
+
+    if (!this.props.hasOwnProperty("marginLeft")) {
+      this.props.marginLeft = "2px";
+    }
+
+    if (!this.props.hasOwnProperty("marginRight")) {
+      this.props.marginRight = "2px";
+    }
+  }
+
   leftnav() {
     switch (this.type) {
       case Constants.TYPE_FULL_CAROUSEL:
@@ -77,16 +101,24 @@ export default class Carousel {
         }
         break;
       case Constants.TYPE_SLIDER_CAROUSEL:
-        const tbrindex =
-          (this.pageOffIndex - 1 + this.totalpages) % this.totalpages;
-        this.pageRefs[tbrindex] = this.pagesparent.removeChild(
-          this.pageRefs[tbrindex]
-        );
-        this.pageRefs[tbrindex] = this.pagesparent.insertBefore(
-          this.pageRefs[tbrindex],
-          this.pageRefs[this.pageOffIndex]
-        );
-        this.pageOffIndex = tbrindex;
+        if (!this.engaged) {
+          this.tbrindex =
+            (this.pageOffIndex - 1 + this.totalpages) % this.totalpages;
+          let clone = this.pageRefs[this.tbrindex].cloneNode(true);
+          this.tempclone = this.pagesparent.insertBefore(
+            clone,
+            this.pageRefs[this.pageOffIndex]
+          );
+
+          this.skate(this.tempclone, Constants.LEFT_SKATE_DIRECTION).then(
+            () => {
+              this.pagesparent.removeChild(this.pageRefs[this.tbrindex]);
+              this.pageRefs[this.tbrindex] = this.tempclone;
+              this.pageOffIndex = this.tbrindex;
+              this.engaged = false;
+            }
+          );
+        }
         break;
     }
   }
@@ -114,13 +146,21 @@ export default class Carousel {
         }
         break;
       case Constants.TYPE_SLIDER_CAROUSEL:
-        this.pageRefs[this.pageOffIndex] = this.pagesparent.removeChild(
-          this.pageRefs[this.pageOffIndex]
-        );
-        this.pageRefs[this.pageOffIndex] = this.pagesparent.appendChild(
-          this.pageRefs[this.pageOffIndex]
-        );
-        this.pageOffIndex = (this.pageOffIndex + 1) % this.totalpages;
+        if (!this.engaged) {
+          let clone = this.pageRefs[this.pageOffIndex].cloneNode(true);
+          this.tempclone = this.pagesparent.appendChild(clone);
+
+          this.skate(
+            this.pageRefs[this.pageOffIndex],
+            Constants.RIGHT_SKATE_DIRECTION
+          ).then(() => {
+            this.pagesparent.removeChild(this.pageRefs[this.pageOffIndex]);
+            this.pageRefs[this.pageOffIndex] = this.tempclone;
+            this.pageRefs[this.pageOffIndex].marginLeft = `0px`;
+            this.pageOffIndex = (this.pageOffIndex + 1) % this.totalpages;
+            this.engaged = false;
+          });
+        }
         break;
     }
   }
@@ -130,6 +170,43 @@ export default class Carousel {
     this.x_carousel_footer.appendChild(
       document.createTextNode(this.getfootermessage())
     );
+  }
+
+  skate(node, direction) {
+    this.engaged = true;
+
+    let computedStyle = window.getComputedStyle(
+      this.pageRefs[this.pageOffIndex]
+    );
+    const width = styleToNumber(computedStyle.width);
+    const marginLeft = styleToNumber(computedStyle.marginLeft);
+    const marginRight = styleToNumber(computedStyle.marginRight);
+
+    let ivalue = null;
+    let fvalue = null;
+
+    if (direction === Constants.RIGHT_SKATE_DIRECTION) {
+      fvalue = -(width + marginRight);
+      ivalue = marginLeft;
+    } else if (direction === Constants.LEFT_SKATE_DIRECTION) {
+      ivalue = -(width + marginRight);
+      fvalue = marginLeft;
+    }
+
+    return new Promise((resolve, reject) => {
+      new animator(
+        ivalue,
+        fvalue,
+        0.3,
+        value => {
+          node.style.marginLeft = `${value}px`;
+        },
+        value => {
+          node.style.marginLeft = `${value}px`;
+          resolve();
+        }
+      ).start();
+    });
   }
 
   slide() {

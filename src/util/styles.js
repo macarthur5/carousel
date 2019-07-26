@@ -22,15 +22,14 @@ export function genStyleSheet(props) {
       );
       break;
     case constants.TYPE_SLIDER_CAROUSEL:
-      let childWidthFraction = props.childWidthFraction;
-      let widthperc = `${childWidthFraction}%`;
       insertRule(
         style,
         `
             .x-carousel-div-content{
-                width : ${widthperc};
+                width : ${props.width};
                 height: 96%;
-                margin: 0px 2px 0px 2px;
+                margin-left: ${props.marginLeft};
+                margin-right: ${props.marginRight};
             }
         `
       );
