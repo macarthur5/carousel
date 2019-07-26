@@ -2,8 +2,8 @@ import leftarrsvg from "../resources/svgs/left-arrow.svg";
 import rightarrsvg from "../resources/svgs/right-arrow.svg";
 import animator from "../util/animator.js";
 
-export default class carousel {
-  constructor(elem, titles) {
+export default class Carousel {
+  constructor(elem, titles, type) {
     this.elem = elem;
     this.titles = titles;
     this.currentpage = 0;
@@ -12,24 +12,39 @@ export default class carousel {
     this.pagesparent = null;
     this.pageRefs = [];
     this.page1pos = 0;
+    this.type = type;
 
     this.leftnav = this.leftnav.bind(this);
     this.rightnav = this.rightnav.bind(this);
     this.prevpage = this.prevpage.bind(this);
     this.nextpage = this.nextpage.bind(this);
     this.slide = this.slide.bind(this);
-    this.hide = this.hide.bind(this);
-    this.show = this.show.bind(this);
+    this.collapse = this.collapse.bind(this);
+    this.grow = this.grow.bind(this);
+    this.toggleHide = this.toggleHide.bind(this);
     this.plugPage1ToStart = this.plugPage1ToStart.bind(this);
     this.plugPage1ToEnd = this.plugPage1ToEnd.bind(this);
+    this.getfootermessage = this.getfootermessage.bind(this);
+    this.postFooterMessage = this.postFooterMessage.bind(this);
+    this.coregen = this.coregen.bind(this);
+    this.divsgen = this.divsgen.bind(this);
+    this.refsgen = this.refsgen.bind(this);
   }
 
-  hide(elem) {
-    elem.style.display = "none";
+  getfootermessage() {
+    return `${this.currentpage + 1}/${this.totalpages}`;
   }
 
-  show(elem) {
-    elem.style.display = "flex";
+  collapse(elem) {
+    elem.classList.toggle("gone", true);
+  }
+
+  grow(elem) {
+    elem.classList.toggle("gone", false);
+  }
+
+  toggleHide(elem) {
+    elem.classList.toggle("hide");
   }
 
   prevpage() {
@@ -38,18 +53,6 @@ export default class carousel {
 
   nextpage() {
     this.currentpage = (++this.currentpage + this.totalpages) % this.totalpages;
-  }
-
-  getleftnavimage() {
-    return `
-      <img src=${leftarrsvg} width="30" height="30" />
-    `;
-  }
-
-  getrightnavimage() {
-    return `
-      <img src=${rightarrsvg} width="30" height="30" />
-    `;
   }
 
   leftnav() {
@@ -62,8 +65,8 @@ export default class carousel {
       this.toBeCollapsed = this.pageRefs[this.currentpage];
       this.prevpage();
       this.toBeGrown = this.pageRefs[this.currentpage];
-      this.show(this.toBeGrown);
-      this.show(this.toBeCollapsed);
+      this.grow(this.toBeGrown);
+      this.grow(this.toBeCollapsed);
       this.slide();
     }
   }
@@ -82,11 +85,18 @@ export default class carousel {
       this.toBeCollapsed = this.pageRefs[this.currentpage];
       this.nextpage();
       this.toBeGrown = this.pageRefs[this.currentpage];
-      this.show(this.toBeGrown);
-      this.show(this.toBeCollapsed);
+      this.grow(this.toBeGrown);
+      this.grow(this.toBeCollapsed);
 
       this.slide();
     }
+  }
+
+  postFooterMessage() {
+    this.x_carousel_footer.innerHTML = "";
+    this.x_carousel_footer.appendChild(
+      document.createTextNode(this.getfootermessage())
+    );
   }
 
   slide() {
@@ -108,8 +118,9 @@ export default class carousel {
           100 - Math.floor(value)
         ).toString()}%`;
 
-        this.hide(this.toBeCollapsed);
+        this.collapse(this.toBeCollapsed);
         this.engaged = false;
+        this.postFooterMessage();
       }
     ).start();
   }
@@ -133,70 +144,121 @@ export default class carousel {
     }
   }
 
-  add_divs() {
+  divsgen() {
+    let widthClass = null;
+    let heightClass = null;
+    let marginClasses = null;
+
+    switch (this.type) {
+      case Carousel.TYPE_FULL_CAROUSEL:
+        widthClass = "block";
+        heightClass = "fullheight";
+        marginClasses = "";
+        break;
+      case Carousel.TYPE_SLIDER_CAROUSEL:
+        widthClass = "block30";
+        heightClass = "easyfullheight";
+        marginClasses = "marginl1 marginr1 ";
+        break;
+    }
+
+    let html = ``;
     this.titles.forEach((title, index) => {
-      const x_carousel_div_content = document.createElement("div");
-      x_carousel_div_content.classList.add(`x-carousel-div-content`);
-      x_carousel_div_content.classList.add(`x-carousel-div-content-${index}`);
-      x_carousel_div_content.setAttribute["data-title"] = title;
-      x_carousel_div_content.classList.add(index === 0 ? `full` : `collapsed`);
-      x_carousel_div_content.classList.add(`fullheight`);
-      x_carousel_div_content.classList.add(`verticalbox`);
-      x_carousel_div_content.classList.add(`jacc`);
-
-      let pagelabel = document.createElement("div");
-      pagelabel.classList.add(`pagelabel`);
-      let pagetitle = document.createTextNode(`${index}`);
-      pagelabel.appendChild(pagetitle);
-      x_carousel_div_content.appendChild(pagelabel);
-
-      if (index !== 0) this.hide(x_carousel_div_content);
-
-      this.pageRefs.push(x_carousel_div_content);
-
-      this.x_carousel
-        .querySelector(`.x-carousel-div`)
-        .appendChild(x_carousel_div_content);
+      html += `
+        <div class="${marginClasses} x-carousel-div-content x-carousel-div-content-${index} ${widthClass} ${heightClass} verticalbox jacc" >
+            <div class="pagelabel">
+              <span>${index + 1}</span>
+            </div>
+        </div>
+    `;
     });
+    return html;
+  }
+
+  coregen() {
+    let nofooterClass = null;
+
+    switch (this.type) {
+      case Carousel.TYPE_FULL_CAROUSEL:
+        nofooterClass = "";
+        break;
+      case Carousel.TYPE_SLIDER_CAROUSEL:
+        nofooterClass = "gone";
+        break;
+    }
+
+    return `
+        <div class="x-carousel block fullheight">
+          
+          <div class="x-carousel-nav x-carousel-leftnav verticalbox jacc fullheight">
+            <img class="x-carousel-leftarr" src=${leftarrsvg} width="30" height="30" />
+          </div>
+
+          <div class="x-carousel-div fullheight horizontalbox jasc">
+            ${this.divsgen()}
+          </div>
+
+          <div class="x-carousel-nav x-carousel-rightnav verticalbox jacc fullheight">
+            <img class="x-carousel-rightarr" src=${rightarrsvg} width="30" height="30" />
+          </div>
+
+          <div class="${nofooterClass} x-carousel-footer block horizontalbox jacs justlargerfont">
+            <span>${this.getfootermessage()}</span>
+          </div>
+
+        </div>
+    `;
+  }
+
+  refsgen() {
+    this.pagesparent = this.elem.querySelector(`.x-carousel-div`);
+    let pages = this.elem.getElementsByClassName(`x-carousel-div-content`);
+    for (let i = 0; i < pages.length; ++i) {
+      this.pageRefs.push(pages[i]);
+    }
+    this.x_carousel = this.elem.querySelector(".x-carousel");
+    this.x_carousel_footer = this.x_carousel.querySelector(
+      `.x-carousel-footer`
+    );
+
+    this.x_carousel_leftnav = this.x_carousel.querySelector(
+      `.x-carousel-leftnav`
+    );
+    this.x_carousel_rightnav = this.x_carousel.querySelector(
+      `.x-carousel-rightnav`
+    );
+
+    this.x_carousel_leftarr = this.x_carousel.querySelector(
+      `.x-carousel-leftarr`
+    );
+    this.x_carousel_rightarr = this.x_carousel.querySelector(
+      `.x-carousel-rightarr`
+    );
+
+    this.x_carousel_leftnav.addEventListener("click", this.leftnav);
+    this.x_carousel_rightnav.addEventListener("click", this.rightnav);
+    this.x_carousel_leftnav.addEventListener("mouseenter", event => {
+      this.toggleHide(this.x_carousel_leftarr);
+    });
+    this.x_carousel_rightnav.addEventListener("mouseenter", event => {
+      this.toggleHide(this.x_carousel_rightarr);
+    });
+    this.x_carousel_leftnav.addEventListener("mouseleave", event => {
+      this.toggleHide(this.x_carousel_leftarr);
+    });
+    this.x_carousel_rightnav.addEventListener("mouseleave", event => {
+      this.toggleHide(this.x_carousel_rightarr);
+    });
+
+    this.toggleHide(this.x_carousel_leftarr);
+    this.toggleHide(this.x_carousel_rightarr);
   }
 
   init() {
-    let x_carousel = document.createElement(`div`);
-    x_carousel.classList.add(`x-carousel`);
-    x_carousel.classList.add(`block`);
-    x_carousel.classList.add(`fullheight`);
-
-    let x_carousel_leftnav = document.createElement(`div`);
-    x_carousel_leftnav.classList.add(`x-carousel-nav`);
-    x_carousel_leftnav.classList.add(`x-carousel-leftnav`);
-    x_carousel_leftnav.classList.add(`verticalbox`);
-    x_carousel_leftnav.classList.add(`jacc`);
-    x_carousel_leftnav.classList.add(`fullheight`);
-    x_carousel_leftnav.addEventListener("click", this.leftnav);
-    x_carousel_leftnav.innerHTML += this.getleftnavimage();
-
-    let x_carousel_div = document.createElement(`div`);
-    x_carousel_div.classList.add(`x-carousel-div`);
-    x_carousel_div.classList.add(`fullheight`);
-    x_carousel_div.classList.add(`horizontalbox`);
-    x_carousel_div.classList.add(`jasbc`);
-    x_carousel_div.classList.add(`flexgrowval1`);
-    this.pagesparent = x_carousel_div;
-
-    let x_carousel_rightnav = document.createElement(`div`);
-    x_carousel_rightnav.classList.add(`x-carousel-nav`);
-    x_carousel_rightnav.classList.add(`x-carousel-rightnav`);
-    x_carousel_rightnav.classList.add(`fullheight`);
-    x_carousel_rightnav.classList.add(`verticalbox`);
-    x_carousel_rightnav.classList.add(`jacc`);
-    x_carousel_rightnav.addEventListener("click", this.rightnav);
-    x_carousel_rightnav.innerHTML += this.getrightnavimage();
-
-    x_carousel.appendChild(x_carousel_leftnav);
-    x_carousel.appendChild(x_carousel_div);
-    x_carousel.appendChild(x_carousel_rightnav);
-
-    this.x_carousel = this.elem.appendChild(x_carousel);
-    this.add_divs();
+    this.elem.innerHTML = this.coregen();
+    this.refsgen();
   }
 }
+
+Carousel.TYPE_FULL_CAROUSEL = 0;
+Carousel.TYPE_SLIDER_CAROUSEL = 1;

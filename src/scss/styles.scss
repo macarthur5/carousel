@@ -6,10 +6,10 @@
 
 .x-carousel-div {
   width: 100%;
-  position: absolute;
   left: 0px;
   top: 0px;
   z-index: 0;
+  position: absolute;
 }
 
 .x-carousel-nav {
@@ -21,32 +21,40 @@
 .x-carousel-leftnav {
   left: 0px;
   top: 0px;
-  z-index: 1;
+  z-index: 2;
 }
 
 .x-carousel-rightnav {
   right: 0px;
   top: 0px;
-  z-index: 1;
+  z-index: 2;
 }
 
 .x-carousel-nav:hover {
   cursor: pointer;
 }
 
+.x-carousel-footer {
+  left: 0px;
+  bottom: 0px;
+  height: 2.5rem;
+  z-index: 1;
+  position: absolute;
+  color: whitesmoke;
+}
+
 .x-carousel-div-content {
-  background-color: whitesmoke;
+  flex: 0 0 auto;
+  background-color: gray;
 }
 
 .x-carousel-div-content .pagelabel {
+  color: whitesmoke;
   font-size: 6.5rem;
-  color: darkslategray;
 }
 
-.full {
-  width: 100%;
-}
+//----------------------------------------- more custom styles
 
-.collapsed {
-  width: 0%;
+.block30{
+  width:30%;
 }

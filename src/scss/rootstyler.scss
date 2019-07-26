@@ -466,6 +466,10 @@ body {
   height: 100%;
 }
 
+.easyfullheight {
+  height: 96%;
+}
+
 .block {
   width: 100%;
 }
@@ -476,6 +480,14 @@ body {
 
 .veryeasyblock {
   width: 80%;
+}
+
+.hide {
+  visibility: hidden;
+}
+
+.show {
+  visibility: visible;
 }
 
 .gone {
@@ -590,4 +602,20 @@ input[type="text"]:focus {
 
 .lightgraytext {
   color: rgb(70, 70, 70);
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.full {
+  width: 100%;
+}
+
+.collapsed {
+  width: 0%;
 }
