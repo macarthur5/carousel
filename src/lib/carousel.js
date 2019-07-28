@@ -1,9 +1,14 @@
 import leftarrsvg from "../resources/svgs/left-arrow.svg";
 import rightarrsvg from "../resources/svgs/right-arrow.svg";
 import animator from "../util/animator.js";
-import * as Constants from "../util/constants.js";
 import { genStyleSheet } from "../util/styles.js";
-import { styleToNumber } from "../util/helper.js";
+import * as Constants from "../util/constants.js";
+import {
+  styleToNumber,
+  toggleHide,
+  cyclicDecrement,
+  cyclicIncrement
+} from "../util/helper.js";
 
 export default class Carousel {
   constructor(elem, titles, props) {
@@ -14,7 +19,6 @@ export default class Carousel {
     this.engaged = false;
     this.pagesparent = null;
     this.pageRefs = [];
-    this.page1pos = 0;
     this.pageOffIndex = 0;
     this.props = props;
 
@@ -22,12 +26,6 @@ export default class Carousel {
     this.rightnav = this.rightnav.bind(this);
     this.prevpage = this.prevpage.bind(this);
     this.nextpage = this.nextpage.bind(this);
-    this.slide = this.slide.bind(this);
-    this.collapse = this.collapse.bind(this);
-    this.grow = this.grow.bind(this);
-    this.toggleHide = this.toggleHide.bind(this);
-    this.plugPage1ToStart = this.plugPage1ToStart.bind(this);
-    this.plugPage1ToEnd = this.plugPage1ToEnd.bind(this);
     this.getfootermessage = this.getfootermessage.bind(this);
     this.postFooterMessage = this.postFooterMessage.bind(this);
     this.coregen = this.coregen.bind(this);
@@ -35,32 +33,38 @@ export default class Carousel {
     this.refsgen = this.refsgen.bind(this);
     this.setProps = this.setProps.bind(this);
     this.skate = this.skate.bind(this);
+    this.skate_executor = this.skate_executor.bind(this);
 
     this.setProps();
   }
+
+  skateLeft(steps = 1) {
+    this.leftnav(steps);
+  }
+
+  skateRight(steps = 1) {
+    this.rightnav(steps);
+  }
+
+  //====================================================================================//
 
   getfootermessage() {
     return `${this.currentpage + 1}/${this.totalpages}`;
   }
 
-  collapse(elem) {
-    elem.classList.toggle("gone", true);
-  }
-
-  grow(elem) {
-    elem.classList.toggle("gone", false);
-  }
-
-  toggleHide(elem) {
-    elem.classList.toggle("hide");
-  }
-
   prevpage() {
-    this.currentpage = (--this.currentpage + this.totalpages) % this.totalpages;
+    this.currentpage = cyclicDecrement(this.currentpage, this.totalpages);
   }
 
   nextpage() {
-    this.currentpage = (++this.currentpage + this.totalpages) % this.totalpages;
+    this.currentpage = cyclicIncrement(this.currentpage, this.totalpages);
+  }
+
+  postFooterMessage() {
+    this.x_carousel_footer.innerHTML = "";
+    this.x_carousel_footer.appendChild(
+      document.createTextNode(this.getfootermessage())
+    );
   }
 
   setProps() {
@@ -83,98 +87,105 @@ export default class Carousel {
     }
   }
 
-  leftnav() {
+  leftnav(steps = 1) {
     switch (this.type) {
       case Constants.TYPE_FULL_CAROUSEL:
-        if (!this.engaged) {
-          if (this.currentpage === 1 && this.page1pos === this.totalpages - 1) {
-            this.plugPage1ToStart();
-          } else if (this.currentpage === 0 && this.page1pos === 0) {
-            this.plugPage1ToEnd();
-          }
-          this.toBeCollapsed = this.pageRefs[this.currentpage];
-          this.prevpage();
-          this.toBeGrown = this.pageRefs[this.currentpage];
-          this.grow(this.toBeGrown);
-          this.grow(this.toBeCollapsed);
-          this.slide();
-        }
-        break;
       case Constants.TYPE_SLIDER_CAROUSEL:
         if (!this.engaged) {
-          this.tbrindex =
-            (this.pageOffIndex - 1 + this.totalpages) % this.totalpages;
-          let clone = this.pageRefs[this.tbrindex].cloneNode(true);
-          this.tempclone = this.pagesparent.insertBefore(
-            clone,
-            this.pageRefs[this.pageOffIndex]
-          );
-
-          this.skate(this.tempclone, Constants.LEFT_SKATE_DIRECTION).then(
-            () => {
-              this.pagesparent.removeChild(this.pageRefs[this.tbrindex]);
-              this.pageRefs[this.tbrindex] = this.tempclone;
-              this.pageOffIndex = this.tbrindex;
-              this.engaged = false;
-            }
+          this.skate_executor(
+            Constants.LEFT_DIRECTION,
+            0,
+            steps,
+            (Constants.SKATE_DURATION / steps) * 1.0
           );
         }
         break;
     }
   }
 
-  rightnav() {
+  rightnav(steps = 1) {
     switch (this.type) {
       case Constants.TYPE_FULL_CAROUSEL:
-        if (!this.engaged) {
-          if (this.currentpage === 0 && this.page1pos === this.totalpages - 1) {
-            this.plugPage1ToStart();
-          } else if (
-            this.currentpage === this.totalpages - 1 &&
-            this.page1pos === 0
-          ) {
-            this.plugPage1ToEnd();
-          }
-
-          this.toBeCollapsed = this.pageRefs[this.currentpage];
-          this.nextpage();
-          this.toBeGrown = this.pageRefs[this.currentpage];
-          this.grow(this.toBeGrown);
-          this.grow(this.toBeCollapsed);
-
-          this.slide();
-        }
-        break;
       case Constants.TYPE_SLIDER_CAROUSEL:
         if (!this.engaged) {
-          let clone = this.pageRefs[this.pageOffIndex].cloneNode(true);
-          this.tempclone = this.pagesparent.appendChild(clone);
-
-          this.skate(
-            this.pageRefs[this.pageOffIndex],
-            Constants.RIGHT_SKATE_DIRECTION
-          ).then(() => {
-            this.pagesparent.removeChild(this.pageRefs[this.pageOffIndex]);
-            this.pageRefs[this.pageOffIndex] = this.tempclone;
-            this.pageRefs[this.pageOffIndex].marginLeft = `0px`;
-            this.pageOffIndex = (this.pageOffIndex + 1) % this.totalpages;
-            this.engaged = false;
-          });
+          this.skate_executor(
+            Constants.RIGHT_DIRECTION,
+            0,
+            steps,
+            (Constants.SKATE_DURATION / steps) * 1.0
+          );
         }
         break;
     }
   }
 
-  postFooterMessage() {
-    this.x_carousel_footer.innerHTML = "";
-    this.x_carousel_footer.appendChild(
-      document.createTextNode(this.getfootermessage())
-    );
-  }
-
-  skate(node, direction) {
+  skate_executor(
+    direction,
+    step,
+    steps = 1,
+    duration = Constants.SKATE_DURATION
+  ) {
+    if (step === steps) return;
     this.engaged = true;
 
+    if (direction === Constants.LEFT_DIRECTION) {
+      this.tbrindex =
+        (this.pageOffIndex - 1 + this.totalpages) % this.totalpages;
+      let clone = this.pageRefs[this.tbrindex].cloneNode(true);
+      this.tempclone = this.pagesparent.insertBefore(
+        clone,
+        this.pageRefs[this.pageOffIndex]
+      );
+
+      this.skate(this.tempclone, direction, duration).then(() => {
+        this.pagesparent.removeChild(this.pageRefs[this.tbrindex]);
+        this.pageRefs[this.tbrindex] = this.tempclone;
+        this.pageOffIndex = this.tbrindex;
+        this.prevpage();
+        this.postFooterMessage();
+
+        if (step + 1 === steps) {
+          this.engaged = false;
+        } else {
+          this.skate_executor(
+            Constants.LEFT_DIRECTION,
+            step + 1,
+            steps,
+            duration
+          );
+        }
+      });
+    } else if (direction === Constants.RIGHT_DIRECTION) {
+      let clone = this.pageRefs[this.pageOffIndex].cloneNode(true);
+      this.tempclone = this.pagesparent.appendChild(clone);
+
+      this.skate(
+        this.pageRefs[this.pageOffIndex],
+        Constants.RIGHT_DIRECTION,
+        duration
+      ).then(() => {
+        this.pagesparent.removeChild(this.pageRefs[this.pageOffIndex]);
+        this.pageRefs[this.pageOffIndex] = this.tempclone;
+        this.pageRefs[this.pageOffIndex].marginLeft = `0px`;
+        this.pageOffIndex = (this.pageOffIndex + 1) % this.totalpages;
+        this.nextpage();
+        this.postFooterMessage();
+
+        if (step + 1 === steps) {
+          this.engaged = false;
+        } else {
+          this.skate_executor(
+            Constants.RIGHT_DIRECTION,
+            step + 1,
+            steps,
+            duration
+          );
+        }
+      });
+    }
+  }
+
+  skate(node, direction, duration = Constants.SKATE_DURATION) {
     let computedStyle = window.getComputedStyle(
       this.pageRefs[this.pageOffIndex]
     );
@@ -185,10 +196,10 @@ export default class Carousel {
     let ivalue = null;
     let fvalue = null;
 
-    if (direction === Constants.RIGHT_SKATE_DIRECTION) {
+    if (direction === Constants.RIGHT_DIRECTION) {
       fvalue = -(width + marginRight);
       ivalue = marginLeft;
-    } else if (direction === Constants.LEFT_SKATE_DIRECTION) {
+    } else if (direction === Constants.LEFT_DIRECTION) {
       ivalue = -(width + marginRight);
       fvalue = marginLeft;
     }
@@ -197,7 +208,7 @@ export default class Carousel {
       new animator(
         ivalue,
         fvalue,
-        0.3,
+        duration,
         value => {
           node.style.marginLeft = `${value}px`;
         },
@@ -207,51 +218,6 @@ export default class Carousel {
         }
       ).start();
     });
-  }
-
-  slide() {
-    this.engaged = true;
-    new animator(
-      0,
-      100,
-      0.3,
-      value => {
-        const ivalstr = `${value.toString()}%`;
-        const dvalstr = `${(100 - value).toString()}%`;
-
-        this.toBeGrown.style.width = ivalstr;
-        this.toBeCollapsed.style.width = dvalstr;
-      },
-      value => {
-        this.toBeGrown.style.width = `${Math.floor(value).toString()}%`;
-        this.toBeCollapsed.style.width = `${(
-          100 - Math.floor(value)
-        ).toString()}%`;
-
-        this.collapse(this.toBeCollapsed);
-        this.engaged = false;
-        this.postFooterMessage();
-      }
-    ).start();
-  }
-
-  plugPage1ToStart() {
-    if (this.page1pos !== 0) {
-      this.pageRefs[0] = this.pagesparent.removeChild(this.pageRefs[0]);
-      this.pageRefs[0] = this.pagesparent.insertBefore(
-        this.pageRefs[0],
-        this.pageRefs[1]
-      );
-      this.page1pos = 0;
-    }
-  }
-
-  plugPage1ToEnd() {
-    if (this.page1pos + 1 !== this.totalpages) {
-      this.pageRefs[0] = this.pagesparent.removeChild(this.pageRefs[0]);
-      this.pageRefs[0] = this.pagesparent.appendChild(this.pageRefs[0]);
-      this.page1pos = this.totalpages - 1;
-    }
   }
 
   divsgen() {
@@ -276,7 +242,7 @@ export default class Carousel {
             <img class="x-carousel-leftarr" src=${leftarrsvg} width="30" height="30" />
           </div>
 
-          <div class="x-carousel-div fullheight horizontalbox jasc">
+          <div class="x-carousel-div block fullheight horizontalbox jasc">
             ${this.divsgen()}
           </div>
 
@@ -317,23 +283,27 @@ export default class Carousel {
       `.x-carousel-rightarr`
     );
 
-    this.x_carousel_leftnav.addEventListener("click", this.leftnav);
-    this.x_carousel_rightnav.addEventListener("click", this.rightnav);
+    this.x_carousel_leftnav.addEventListener("click", () => {
+      this.leftnav(1);
+    });
+    this.x_carousel_rightnav.addEventListener("click", () => {
+      this.rightnav(1);
+    });
     this.x_carousel_leftnav.addEventListener("mouseenter", event => {
-      this.toggleHide(this.x_carousel_leftarr);
+      toggleHide(this.x_carousel_leftarr);
     });
     this.x_carousel_rightnav.addEventListener("mouseenter", event => {
-      this.toggleHide(this.x_carousel_rightarr);
+      toggleHide(this.x_carousel_rightarr);
     });
     this.x_carousel_leftnav.addEventListener("mouseleave", event => {
-      this.toggleHide(this.x_carousel_leftarr);
+      toggleHide(this.x_carousel_leftarr);
     });
     this.x_carousel_rightnav.addEventListener("mouseleave", event => {
-      this.toggleHide(this.x_carousel_rightarr);
+      toggleHide(this.x_carousel_rightarr);
     });
 
-    this.toggleHide(this.x_carousel_leftarr);
-    this.toggleHide(this.x_carousel_rightarr);
+    toggleHide(this.x_carousel_leftarr);
+    toggleHide(this.x_carousel_rightarr);
   }
 
   init() {
@@ -342,3 +312,7 @@ export default class Carousel {
     genStyleSheet(this.props);
   }
 }
+
+Carousel.getConstants = () => {
+  return Constants;
+};

@@ -40,21 +40,20 @@
   height: 2.5rem;
   z-index: 1;
   position: absolute;
-  color: whitesmoke;
+  color: grey;
 }
 
 .x-carousel-div-content {
   flex: 0 0 auto;
-  background-color: gray;
 }
 
 .x-carousel-div-content .pagelabel {
-  color: whitesmoke;
+  color: grey;
   font-size: 6.5rem;
 }
 
 //----------------------------------------- more custom styles
 
-.block30{
-  width:30%;
+.block30 {
+  width: 30%;
 }
