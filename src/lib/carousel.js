@@ -11,11 +11,10 @@ import {
 } from "../util/helper.js";
 
 export default class Carousel {
-  constructor(elem, titles, props) {
+  constructor(elem, number, props) {
     this.elem = elem;
-    this.titles = titles;
     this.currentpage = 0;
-    this.totalpages = titles.length;
+    this.totalpages = number;
     this.engaged = false;
     this.pagesparent = null;
     this.pageRefs = [];
@@ -34,6 +33,8 @@ export default class Carousel {
     this.setProps = this.setProps.bind(this);
     this.skate = this.skate.bind(this);
     this.skate_executor = this.skate_executor.bind(this);
+    this.getcore = this.getcore.bind(this);
+    this.getpageRefs = this.getpageRefs.bind(this);
 
     this.setProps();
   }
@@ -46,7 +47,54 @@ export default class Carousel {
     this.rightnav(steps);
   }
 
+  appendPage(count = 1) {
+    this.insertPage(this.totalpages, count);
+  }
+
+  insertPage(index = 0, count = 1) {
+    let htmlindex =
+      index < this.currentpage
+        ? this.totalpages - this.currentpage + 1 + index
+        : index - this.currentpage + 1;
+
+    let afterNode = null;
+
+    if (htmlindex <= this.totalpages) {
+      afterNode = this.x_carousel_div.querySelector(`:nth-child(${htmlindex})`);
+    }
+
+    let newdivs = [];
+
+    if (afterNode) {
+      for (let i = 0; i < count; ++i) {
+        newdivs.push(
+          this.x_carousel_div.insertBefore(
+            this.divcontentnode("i", "inode"),
+            afterNode
+          )
+        );
+      }
+    } else {
+      for (let i = 0; i < count; ++i) {
+        newdivs.push(
+          this.x_carousel_div.append(this.divcontentnode("i", "inode"))
+        );
+      }
+    }
+
+    this.pageRefs.splice(index, 0, ...newdivs);
+    this.totalpages += count;
+  }
+
   //====================================================================================//
+
+  getpageRefs() {
+    return this.pageRefs;
+  }
+
+  getcore() {
+    return this;
+  }
 
   getfootermessage() {
     return `${this.currentpage + 1}/${this.totalpages}`;
@@ -137,7 +185,7 @@ export default class Carousel {
         this.pageRefs[this.pageOffIndex]
       );
 
-      this.skate(this.tempclone, direction, duration).then(() => {
+      this.skate(this.tempclone, direction, step, steps, duration).then(() => {
         this.pagesparent.removeChild(this.pageRefs[this.tbrindex]);
         this.pageRefs[this.tbrindex] = this.tempclone;
         this.pageOffIndex = this.tbrindex;
@@ -162,6 +210,8 @@ export default class Carousel {
       this.skate(
         this.pageRefs[this.pageOffIndex],
         Constants.RIGHT_DIRECTION,
+        step,
+        steps,
         duration
       ).then(() => {
         this.pagesparent.removeChild(this.pageRefs[this.pageOffIndex]);
@@ -185,7 +235,7 @@ export default class Carousel {
     }
   }
 
-  skate(node, direction, duration = Constants.SKATE_DURATION) {
+  skate(node, direction, step, steps, duration = Constants.SKATE_DURATION) {
     let computedStyle = window.getComputedStyle(
       this.pageRefs[this.pageOffIndex]
     );
@@ -215,21 +265,37 @@ export default class Carousel {
         value => {
           node.style.marginLeft = `${value}px`;
           resolve();
-        }
+        },
+        step + 1 === steps ? animator.EASEOUTEXPO : animator.EASEOUTLINEAR
       ).start();
     });
   }
 
+  divcontentnode(index, type = "normal") {
+    let node = document.createElement("div");
+    node.classList.add("x-carousel-div-content");
+    node.classList.add("verticalbox");
+    node.classList.add("jacc");
+    node.innerHTML = `<div class="pagelabel">
+            <span>${type === "normal" ? index + 1 : index}</span>
+        </div>`;
+    return node;
+  }
+
+  divcontent(index) {
+    return `
+    <div class="x-carousel-div-content verticalbox jacc" >
+        <div class="pagelabel">
+          <span>${index + 1}</span>
+        </div>
+    </div>
+`;
+  }
+
   divsgen() {
     let html = ``;
-    this.titles.forEach((title, index) => {
-      html += `
-        <div class="x-carousel-div-content x-carousel-div-content-${index} verticalbox jacc" >
-            <div class="pagelabel">
-              <span>${index + 1}</span>
-            </div>
-        </div>
-    `;
+    [...Array(this.totalpages).keys()].forEach(index => {
+      html += this.divcontent(index);
     });
     return html;
   }
@@ -265,6 +331,7 @@ export default class Carousel {
       this.pageRefs.push(pages[i]);
     }
     this.x_carousel = this.elem.querySelector(".x-carousel");
+    this.x_carousel_div = this.x_carousel.querySelector(".x-carousel-div");
     this.x_carousel_footer = this.x_carousel.querySelector(
       `.x-carousel-footer`
     );
